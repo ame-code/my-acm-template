@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bits/stdc++.h>
 using u32 = unsigned int;
 using i64 = long long;
 using u64 = unsigned i64;
@@ -9,3 +10,5 @@ template <class T>
 using ref = T&;
 template <class T>
 using cref = const T&;
+template <class T>
+using ParamType = std::conditional_t<(sizeof(T) <= 16), T, const T&>;
