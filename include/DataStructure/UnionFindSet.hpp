@@ -11,9 +11,9 @@ struct UnionFindSet
         }
     }
     UnionFindSet(const UnionFindSet& ufs) = default;
-    UnionFindSet(UnionFindSet&&) = default;
+    UnionFindSet(UnionFindSet&&) noexcept = default;
     UnionFindSet& operator=(const UnionFindSet&) = default;
-    UnionFindSet& operator=(UnionFindSet&&) = default;
+    UnionFindSet& operator=(UnionFindSet&&) noexcept = default;
 
     size_t root(size_t x) {
         return parent[x] = (parent[x] == x ? x : root(parent[x]));
