@@ -1,9 +1,6 @@
 #pragma once
 #include <bits/stdc++.h>
-
-using u32 = unsigned int;
-using i64 = long long signed int;
-using u64 = long long unsigned int;
+#include <acm_template/TypeDef.h>
 
 struct BigNumber
 {
