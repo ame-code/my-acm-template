@@ -1,19 +1,5 @@
 #pragma once
-
-#include <cstddef>
-#include <vector>
-#include <string_view>
-#include <sstream>
-#include <algorithm>
-#include <ranges>
-#include <compare>
-#include <utility>
-#include <bit>
-#include <iostream>
-#include <iomanip>
-
-namespace reed
-{
+#include <bits/stdc++.h>
 
 using u32 = unsigned int;
 using i64 = long long signed int;
@@ -339,5 +325,3 @@ struct BigNumber
         return *this = *this % num;
     }
 };
-    
-} // namespace reed
