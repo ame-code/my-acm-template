@@ -2,7 +2,7 @@
 #include <bits/stdc++.h>
 #include <acm_template/TypeDef.h>
 
-struct BigNumber
+struct BigInt
 {
     using number_type = std::vector<int>;
     using sign_type = int;
@@ -12,16 +12,16 @@ struct BigNumber
     sign_type sign{1};
     number_type number;
 
-    BigNumber() : number{} {}
+    BigInt() : number{} {}
     template <std::integral T>
-    BigNumber(T num) : sign(num < 0 ? (num = -num, -1) : 1), number{int(num % base), int(num / base)} {remove_leading_zero();}
-    BigNumber(const std::string& str) {std::istringstream(str) >> (*this);}
-    BigNumber(const BigNumber& num) = default;
-    BigNumber(BigNumber&& num) = default;
-    BigNumber& operator=(const BigNumber&) = default;
-    BigNumber& operator=(BigNumber&&) = default;
+    BigInt(T num) : sign(num < 0 ? (num = -num, -1) : 1), number{int(num % base), int(num / base)} {remove_leading_zero();}
+    BigInt(const std::string& str) {std::istringstream(str) >> (*this);}
+    BigInt(const BigInt& num) = default;
+    BigInt(BigInt&& num) = default;
+    BigInt& operator=(const BigInt&) = default;
+    BigInt& operator=(BigInt&&) = default;
 
-    auto operator<=>(const BigNumber& other) const {
+    auto operator<=>(const BigInt& other) const {
         if (
             const auto cmp = sign <=> other.sign;
             cmp != 0
@@ -34,7 +34,7 @@ struct BigNumber
             other.number.rbegin(), other.number.rend()
         );
     }
-    bool operator==(const BigNumber& other) const = default;
+    bool operator==(const BigInt& other) const = default;
 
     void remove_leading_zero() {
         while (number.empty() == false && number.back() == 0)
@@ -42,7 +42,7 @@ struct BigNumber
         sign = number.empty() ? 1 : sign;
     }
 
-    friend BigNumber abs(const BigNumber& num) {
+    friend BigInt abs(const BigInt& num) {
         auto tmp = num;
         tmp.sign = 1;
         return tmp;
@@ -118,12 +118,12 @@ struct BigNumber
         return res;
     }
 
-    friend std::pair<BigNumber, BigNumber> divmod(
-        const BigNumber& a,
-        const BigNumber& b
+    friend std::pair<BigInt, BigInt> divmod(
+        const BigInt& a,
+        const BigInt& b
     ) {
         int norm = base / (b.number.back() + 1);
-        BigNumber
+        BigInt
             x = abs(a) * norm,
             y = abs(b) * norm,
             quot, rem;
@@ -149,7 +149,7 @@ struct BigNumber
         return std::make_pair(quot, rem / norm);
     }
 
-    friend std::istream& operator>>(std::istream& is, BigNumber& num) {
+    friend std::istream& operator>>(std::istream& is, BigInt& num) {
         std::string str;
         is >> str;
         num.sign = 1;
@@ -158,9 +158,9 @@ struct BigNumber
             if (str[pos] == '-') num.sign = -1;
             pos++;
         }
-        for (int i = int(str.length()) - 1; i >= i64(pos); i -= BigNumber::base_digits) {
+        for (int i = int(str.length()) - 1; i >= i64(pos); i -= BigInt::base_digits) {
             u32 tmp = 0;
-            for (int j = std::max(i64(pos), i - i64(BigNumber::base_digits) + 1); j <= i; j++)
+            for (int j = std::max(i64(pos), i - i64(BigInt::base_digits) + 1); j <= i; j++)
                 (tmp *= 10) += (str[j] - '0');
             num.number.push_back(tmp);
         }
@@ -168,7 +168,7 @@ struct BigNumber
         return is;
     }
 
-    friend std::ostream& operator<<(std::ostream& os, const BigNumber& num) {
+    friend std::ostream& operator<<(std::ostream& os, const BigInt& num) {
         auto& [sign, number] = num;
         if (num.number.empty() == true)
             return os << '0';
@@ -177,22 +177,22 @@ struct BigNumber
             os << '-';
         os << (num.number.empty() ? 0 : num.number.back());
         for (int i = std::ssize(num.number) - 2; i >= 0; i--)
-            os << std::setw(BigNumber::base_digits) << std::setfill('0') << number[i];
+            os << std::setw(BigInt::base_digits) << std::setfill('0') << number[i];
 
         return os;
     }
 
-    BigNumber operator-() const {
+    BigInt operator-() const {
         auto res = *this;
         res.sign = -sign;
         return res;
     }
 
-    BigNumber operator+(const BigNumber& other) const {
+    BigInt operator+(const BigInt& other) const {
         if (sign != other.sign)
             return *this - (-other);
 
-        auto res = BigNumber{};
+        auto res = BigInt{};
         res.sign = this->sign;
         const auto& [shorter, longer] =
             number.size() < other.number.size() ? 
@@ -216,7 +216,7 @@ struct BigNumber
         return res;
     }
 
-    BigNumber operator-(const BigNumber& other) const {
+    BigInt operator-(const BigInt& other) const {
         if (sign != other.sign)
             return *this + (-other);
 
@@ -226,7 +226,7 @@ struct BigNumber
         
         const auto& [subed_num, sub_num] = std::tie(number, other.number);
 
-        auto res = BigNumber(0);
+        auto res = BigInt(0);
         res.sign = this->sign;
         auto& res_num = res.number;
         res_num.resize(subed_num.size() + 1);
@@ -248,14 +248,14 @@ struct BigNumber
         return res;
     }
 
-    BigNumber operator*(const BigNumber& other) const {
+    BigInt operator*(const BigInt& other) const {
         std::vector<i64>
             a6 = convert_base<i64>(number, base_digits, 6),
             b6 = convert_base<i64>(other.number, base_digits, 6);
         const auto max_n = std::bit_ceil(std::ranges::max(a6.size(), b6.size()));
         a6.resize(max_n), b6.resize(max_n);
         auto c = karatsuba(a6, b6);
-        BigNumber res;
+        BigInt res;
         res.sign = sign * other.sign;
         res.number.reserve((std::ssize(c) * 6 + base_digits - 1) / base_digits);
         for (int i = 0, rem = 0; i < std::ssize(c); i++) {
@@ -269,8 +269,8 @@ struct BigNumber
         return res;
     }
 
-    BigNumber operator/(int num) const {
-        BigNumber res = *this;
+    BigInt operator/(int num) const {
+        BigInt res = *this;
         res.sign *= (num < 0 ? -1 : 1);
         num *= (num < 0 ? -1 : 1);
         for (int i = std::ssize(res.number) - 1, rem = 0; i >= 0; i--) {
@@ -282,43 +282,43 @@ struct BigNumber
         return res;
     }
 
-    BigNumber& operator/=(int num) {
+    BigInt& operator/=(int num) {
         return *this = *this / num;
     }
 
-    BigNumber operator/(i64 num) const {
-        return *this / BigNumber(num);
+    BigInt operator/(i64 num) const {
+        return *this / BigInt(num);
     }
 
-    BigNumber& operator/=(i64 num) {
-        return *this /= BigNumber(num);
+    BigInt& operator/=(i64 num) {
+        return *this /= BigInt(num);
     }
 
-    BigNumber operator/(const BigNumber& other) const {
+    BigInt operator/(const BigInt& other) const {
         return divmod(*this, other).first;
     }
 
-    BigNumber operator%(const BigNumber& other) const {
+    BigInt operator%(const BigInt& other) const {
         return divmod(*this, other).second;
     }
 
-    BigNumber& operator+=(const BigNumber& num) {
+    BigInt& operator+=(const BigInt& num) {
         return *this =  *this + num;
     }
 
-    BigNumber& operator-=(const BigNumber&& num) {
+    BigInt& operator-=(const BigInt&& num) {
         return *this = *this - num;
     }
 
-    BigNumber& operator*=(const BigNumber&& num) {
+    BigInt& operator*=(const BigInt&& num) {
         return *this = *this * num;
     }
 
-    BigNumber& operator/=(const BigNumber&& num) {
+    BigInt& operator/=(const BigInt&& num) {
         return *this = *this / num;
     }
 
-    BigNumber& operator%=(const BigNumber&& num) {
+    BigInt& operator%=(const BigInt&& num) {
         return *this = *this % num;
     }
 };
