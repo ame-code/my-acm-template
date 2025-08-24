@@ -10,5 +10,7 @@ template <class T>
 using ref = T&;
 template <class T>
 using cref = const T&;
-template <class T>
-using ParamType = std::conditional_t<(sizeof(T) <= 16), T, const T&>;
+template <class T> struct ParamTypeImpl {using type = T;};
+template <class T> requires (sizeof(T) <= 16)
+struct ParamTypeImpl<T> {using type = const T&;};
+template <class T> using ParamType = ParamTypeImpl<T>::type;
