@@ -1,12 +1,4 @@
 #pragma once
-#ifndef UNIONFINDSET_HEADER
-#define UNIONFINDSET_HEADER
-
-// ========================
-// 并查集
-// 最后修改时间：2025-04-18
-// ========================
-
 #include<vector>
 
 class UnionFindSet
@@ -42,5 +34,3 @@ public:
         }
     }
 };
-
-#endif
