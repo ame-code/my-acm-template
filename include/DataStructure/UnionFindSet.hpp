@@ -12,6 +12,7 @@ struct UnionFindSet
     }
     UnionFindSet(const UnionFindSet& ufs) = default;
     UnionFindSet(UnionFindSet&&) = default;
+    UnionFindSet& operator=(const UnionFindSet&) = default;
     UnionFindSet& operator=(UnionFindSet&&) = default;
 
     size_t root(size_t x) {
