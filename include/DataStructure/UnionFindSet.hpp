@@ -1,11 +1,9 @@
 #pragma once
 #include<vector>
 
-class UnionFindSet
+struct UnionFindSet
 {
-private:
     std::vector<size_t> parent,rank;
-public:
     UnionFindSet() = delete;
     explicit UnionFindSet(size_t n):parent(n, 0),rank(n, 0){
         for(size_t i = 0; i < n; i++) {
