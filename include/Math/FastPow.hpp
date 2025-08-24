@@ -6,18 +6,18 @@ template<class Int = int>
 constexpr Int fastPow(Int base, Int power) noexcept {
     Int ret = 1;
     for (; power; power /= 2, base *= base) {
-        if (power & 1) ret *= base;
+        if (power % 2) ret *= base;
     }
     return ret;
 }
 
 // 带模运算的循环实现
 template<class Int = int>
-constexpr Int fastPow(Int base, Int index, Int mod) noexcept {
+constexpr Int fastPow(Int base, Int power, Int mod) noexcept {
     Int ret = 1;
     base %= mod;
-    for (; index; index /= 2, base = base * base % mod) {
-        if (index & 1) ret = ret * base % mod;
+    for (; power; power /= 2, base = base * base % mod) {
+        if (power % 2) ret = ret * base % mod;
     }
     return ret;
 }
