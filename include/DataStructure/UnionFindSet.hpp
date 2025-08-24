@@ -10,7 +10,7 @@ struct UnionFindSet
             parent[i] = i;
         }
     }
-    UnionFindSet(const UnionFindSet& ufs):parent(ufs.parent),rank(ufs.rank){}
+    UnionFindSet(const UnionFindSet& ufs) = default;
     UnionFindSet(UnionFindSet&&) = default;
     UnionFindSet& operator=(UnionFindSet&&) = default;
 
