@@ -2,7 +2,7 @@
 #include <bits/stdc++.h>
 
 template <class T>
-T exgcd(T a, T b, T& x, T& y) {
+T exGCD(T a, T b, T& x, T& y) {
     if (!b) {
         x = 1;
         y = 0;
@@ -29,7 +29,7 @@ T loopExGCD(T a, T b, T& x, T& y) {
 }
 
 template <class T>
-T MatrixExGCD(T a, T b, T& x, T& y) {
+T matrixExGCD(T a, T b, T& x, T& y) {
     int x1 = 1, x2 = 0, x3 = 0, x4 = 1;
     while (b != 0) {
         int c = a / b;
