@@ -47,7 +47,7 @@ struct ModInt
     }
     constexpr ModInt operator--(int) {
         auto res = *this;
-        ++(*this);
+        --(*this);
         return res;
     }
     constexpr ModInt& operator+=(cref<ModInt> other) {
