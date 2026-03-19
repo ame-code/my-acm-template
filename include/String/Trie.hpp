@@ -1,128 +1,136 @@
 #pragma once
 #include <bits/stdc++.h>
 
-namespace ASCII
+namespace Trie
 {
-using LowerToIdx = decltype(
-    [](char ch) -> int {
+struct LowerToIndex {
+    int operator()(char ch) const {
         return ch - 'a';
     }
-);
-using UpperToIdx = decltype(
-    [](char ch) -> int {
+};
+
+struct UpperToIndex {
+    int operator()(char ch) const {
         return ch - 'A';
     }
-);
-using AlnumToIdx = decltype(
-    [](char ch) -> int {
-        if (std::isdigit(ch)) return ch - '0';
-        if (std::isupper(ch)) return ch - 'A' + 10;
-        if (std::islower(ch)) return ch - 'a' + 10 + 26;
-        return -1;
-    }
-);
-template <size_t AsciiSize = 26, class TransFunc = LowerToIdx>
-struct Trie
-{
-    using Node = std::array<int, AsciiSize>;
-    std::vector<Node> tree;
-    std::vector<int> exist;
-    size_t cnt;
-    TransFunc func;
+};
 
-    Trie(size_t size = 200'000) : tree(size, Node{}), exist(size, 0), cnt(0) {}
+struct AlphaToIndex {
+    int operator()(char ch) const {
+        if (std::isupper(ch)) {
+            return ch - 'A';
+        } else {
+            return ch - 'a' + 'A';
+        }
+    }
+};
+
+struct AlnumToIndex {
+    int operator()(char ch) const {
+        if (std::isdigit(ch)) {
+            return ch - '0';
+        } else if (std::isupper(ch)) {
+            return ch - 'A' + '0';
+        } else {
+            return ch - 'a' + '0' + 'A';
+        }
+    }
+};
+
+template <int ASCIISize = 26, class MapFunc = LowerToIndex>
+struct ASCII
+{
+    using Node = std::array<int, ASCIISize>;
+
+    ASCII(int size): tree(size, Node{}), exist(size, 0), cnt(0), mapFunc(MapFunc{}) {}
 
     void insert(std::string_view s) {
         int p = 0;
         for (auto ch : s) {
-            int c = func(ch);
+            int c = mapFunc(ch);
             if (!tree[p][c]) tree[p][c] = ++cnt;
             p = tree[p][c];
             exist[p]++;
         }
     }
+
     int search(std::string_view s) const {
         int p = 0;
-        for (int i = 0; i < std::ssize(s); i++) {
-            int c = s[i] - 'a';
+        for (auto ch : s) {
+            int c = mapFunc(ch);
             if (!tree[p][c]) return 0;
             p = tree[p][c];
         }
         return exist[p];
     }
-};
-} // namespace ASCII
 
-namespace MaxXor
-{
-
-template <size_t Bit = 31>
-struct Trie
-{
-    // inline static constexpr size_t Bit = 31;
-    struct Node
-    {
-        std::array<int, 2> son_idx{};
-        size_t size{};
-    };
+private:
     std::vector<Node> tree;
-    int cnt{};
+    std::vector<int> exist;
+    int cnt;
+    [[no_unique_address]] MapFunc mapFunc;
+};
 
-    Trie(size_t size = 200'000) : tree(size, Node{}), cnt(0) {}
+template <int BitSize = 31>
+struct MaxXor {
+    struct Node {
+        std::array<int, 2> son_idx{};
+        int size{};
+    };
+
+    MaxXor(int size): tree(size, Node{}), cnt(0) {}
 
     void insert(int val) {
-        int now = 0;
-        tree[now].size++;
+        int p = 0;
+        tree[p].size++;
         for (int i = Bit - 1; i >= 0; i--) {
             int bit = (val >> i) & 1;
-            if (!tree[now].son_idx[bit]) tree[now].son_idx[bit] = ++cnt;
-            now = tree[now].son_idx[bit];
-            tree[now].size++;
+            if (!tree[p].son_idx[bit]) tree[p].son_idx[bit] = ++cnt;
+            p = tree[p].son_idx[bit];
+            tree[p].size++;
         }
     }
 
     int query(int val) const {
-        int now = 0;
+        int p = 0;
         for (int i = Bit - 1; i >= 0; i--) {
             int bit = (val >> i) & 1;
-            if (!tree[now].son_idx[bit]) return 0;
-            now = tree[now].son_idx[bit];
+            if (!tree[p].son_idx[bit]) return 0;
+            p = tree[p].son_idx[bit];
         }
-        return tree[now].size;
+        return tree[p].size;
     }
 
     int maxXor(int val) const {
-        int res = 0, now = 0;
+        int res = 0, p = 0;
         for (int i = Bit - 1; i >= 0; i--) {
             int bit = (val >> i) & 1;
-            if (tree[now].son_idx[bit ^ 1])
-                res += 1 << i,
+            if (tree[p].son_idx[bit ^ 1]) {
+                res += 1 << i;
                 bit ^= 1;
-            now = tree[now].son_idx[bit];
+            }
+            p = tree[p].son_idx[bit];
         }
         return res;
     }
+
+private:
+    std::vector<Node> tree;
+    int cnt{};
 };
 
-} // namespace MaxXor
-
-namespace AllXor
-{
 
 template <size_t Bit = 31>
-struct Trie
+struct AllXor
 {
-    // inline static constexpr size_t Bit = 31;
     struct Node
     {
         std::array<int, 2> son_idx{};
-        size_t size{};
+        int size{};
         int xor_val{};
     };
-    std::vector<Node> tree;
-    int cnt = 0;
 
-    Trie(size_t size = 200'000) : tree(size * Bit, Node{}), cnt{0} {}
+    AllXor(size_t size = 200'000) : tree(size * Bit, Node{}), cnt{0} {}
 
     void xorSon(int idx) {
         tree[idx].size = tree[idx].xor_val = 0;
@@ -206,6 +214,9 @@ struct Trie
     int allXorValue() const {
         return tree[0].xor_val;
     }
+private:
+    std::vector<Node> tree;
+    int cnt = 0;
 };
 
-} // namespace AllXor
+} // namespace Trie

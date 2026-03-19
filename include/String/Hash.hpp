@@ -1,7 +1,7 @@
 #pragma once
-#include <acm_template/TypeDef.h>
+#include <acm/TypeDef.h>
 #include <bits/stdc++.h>
-#include <dev/DataStructure/ModInt.hpp>
+#include <acm/DataStructure/ModInt.hpp>
 
 template <i64 Base, class T = i64>
 struct PowerBase

@@ -1,6 +1,18 @@
 #pragma once
-#include <bits/stdc++.h>
-#include <acm_template/TypeDef.h>
+#include <vector>
+#include <format>
+#include <sstream>
+#include <iomanip>
+#include <concepts>
+// i64 u32
+#include <acm/TypeDef.hpp>
+
+template <class QuotType, class RemType>
+struct DivModResult
+{
+    QuotType quot;
+    RemType rem;
+};
 
 struct BigInt
 {
@@ -17,9 +29,9 @@ struct BigInt
     BigInt(T num) : sign(num < 0 ? (num = -num, -1) : 1), number{int(num % base), int(num / base)} {remove_leading_zero();}
     BigInt(const std::string& str) {std::istringstream(str) >> (*this);}
     BigInt(const BigInt& num) = default;
-    BigInt(BigInt&& num) = default;
+    BigInt(BigInt&& num) noexcept = default;
     BigInt& operator=(const BigInt&) = default;
-    BigInt& operator=(BigInt&&) = default;
+    BigInt& operator=(BigInt&&) noexcept = default;
 
     auto operator<=>(const BigInt& other) const {
         if (
@@ -36,93 +48,17 @@ struct BigInt
     }
     bool operator==(const BigInt& other) const = default;
 
-    void remove_leading_zero() {
-        while (number.empty() == false && number.back() == 0)
-            number.pop_back();
-        sign = number.empty() ? 1 : sign;
-    }
-
     friend BigInt abs(const BigInt& num) {
         auto tmp = num;
         tmp.sign = 1;
         return tmp;
     }
     
-    static std::vector<i64> karatsuba(const std::vector<i64>& a, const std::vector<i64>& b) {
-        const auto n = std::ssize(a);
-        std::vector<i64> res(n << 1, 0);
-        if (n <= 32) {
-            for (int i = 0; i < n; i++)
-                for (int j = 0; j < n; j++)
-                    res[i + j] += a[i] * b[j];
-            return res;
-        }
-
-        const auto k = n >> 1;
-        std::vector<i64>
-            a1(a.begin(), a.begin() + k),
-            a2(a.begin() + k, a.end()),
-            b1(b.begin(), b.begin() + k),
-            b2(b.begin() + k, b.end());
-
-        const auto 
-            a1b1 = karatsuba(a1, b1),
-            a2b2 = karatsuba(a2, b2);
-
-        for (int i = 0; i < k; i++)
-            a2[i] += a1[i];
-        for (int i = 0; i < k; i++)
-            b2[i] += b1[i];
-
-        auto c = karatsuba(a2, b2);
-        for (int i = 0; i < std::ssize(a1b1); i++)
-            c[i] -= a1b1[i];
-        for (int i = 0; i < std::ssize(a2b2); i++)
-            c[i] -= a2b2[i];
-
-        for (int i = 0; i < std::ssize(a1b1); i++)
-            res[i] += a1b1[i];
-        for (int i = 0; i < std::ssize(c); i++)
-            res[i + k] += c[i];
-        for (int i = 0; i < std::ssize(a2b2); i++)
-            res[i + n] += a2b2[i];
-
-        return res;
-    }
-
-    template<std::integral T, std::integral U>
-    static std::vector<T> convert_base(const std::vector<U>& a, const int old_digits, const int new_digits) {
-        std::vector<u64> pow(new_digits + 1);
-        pow[0] = 1;
-        for (int i = 1; i <= new_digits; i++)
-            pow[i] = pow[i - 1] * 10;
-
-        std::vector<T> res;
-        res.reserve((std::ssize(a) * old_digits + new_digits - 1) / new_digits + 1);
-        
-        i64 cur = 0;
-        int cur_digits = 0;
-        for (int i = 0; i < std::ssize(a); i++) {
-            cur += a[i] * pow[cur_digits];
-            cur_digits += old_digits;
-            while (cur_digits >= new_digits) {
-                res.push_back((T)(cur % pow[new_digits]));
-                cur /= pow[new_digits];
-                cur_digits -= new_digits;
-            }
-        }
-        res.push_back((T)(cur));
-        while (res.empty() == false && res.back() == 0)
-            res.pop_back();
-
-        return res;
-    }
-
-    friend std::pair<BigInt, BigInt> divmod(
+    friend DivModResult<BigInt, BigInt> divmod(
         const BigInt& a,
         const BigInt& b
     ) {
-        int norm = base / (b.number.back() + 1);
+        int norm = BigInt::base / (b.number.back() + 1);
         BigInt
             x = abs(a) * norm,
             y = abs(b) * norm,
@@ -130,12 +66,12 @@ struct BigInt
         quot.number.resize(x.number.size());
         rem.number.reserve(y.number.size() + 1);
         for (int i = std::ssize(x.number) - 1; i >= 0; i--) {
-            rem *= base;
+            rem *= BigInt::base;
             rem += x.number[i];
             int 
                 s1 = (rem.number.size() > y.number.size() ? rem.number[y.number.size()] : 0),
                 s2 = (rem.number.size() > y.number.size() - 1 ? rem.number[y.number.size() - 1] : 0);
-            int d = (i64(base) * s1 + s2) / y.number.back();
+            int d = (i64(BigInt::base) * s1 + s2) / y.number.back();
             rem -= y * d;
             while (rem < 0)
                 rem += b, d--;
@@ -146,7 +82,7 @@ struct BigInt
         rem.sign = a.sign;
         quot.remove_leading_zero();
         rem.remove_leading_zero();
-        return std::make_pair(quot, rem / norm);
+        return DivModResult<BigInt, BigInt>(quot, rem / norm);
     }
 
     friend std::istream& operator>>(std::istream& is, BigInt& num) {
@@ -295,11 +231,11 @@ struct BigInt
     }
 
     BigInt operator/(const BigInt& other) const {
-        return divmod(*this, other).first;
+        return divmod(*this, other).quot;
     }
 
     BigInt operator%(const BigInt& other) const {
-        return divmod(*this, other).second;
+        return divmod(*this, other).rem;
     }
 
     BigInt& operator+=(const BigInt& num) {
@@ -321,4 +257,101 @@ struct BigInt
     BigInt& operator%=(const BigInt&& num) {
         return *this = *this % num;
     }
+
+private:
+    
+    void remove_leading_zero() {
+        while (number.empty() == false && number.back() == 0)
+            number.pop_back();
+        sign = number.empty() ? 1 : sign;
+    }
+
+    static std::vector<i64> karatsuba(const std::vector<i64>& a, const std::vector<i64>& b) {
+        const auto n = std::ssize(a);
+        std::vector<i64> res(n << 1, 0);
+        if (n <= 32) {
+            for (int i = 0; i < n; i++)
+                for (int j = 0; j < n; j++)
+                    res[i + j] += a[i] * b[j];
+            return res;
+        }
+
+        const auto k = n >> 1;
+        std::vector<i64>
+            a1(a.begin(), a.begin() + k),
+            a2(a.begin() + k, a.end()),
+            b1(b.begin(), b.begin() + k),
+            b2(b.begin() + k, b.end());
+
+        const auto 
+            a1b1 = karatsuba(a1, b1),
+            a2b2 = karatsuba(a2, b2);
+
+        for (int i = 0; i < k; i++)
+            a2[i] += a1[i];
+        for (int i = 0; i < k; i++)
+            b2[i] += b1[i];
+
+        auto c = karatsuba(a2, b2);
+        for (int i = 0; i < std::ssize(a1b1); i++)
+            c[i] -= a1b1[i];
+        for (int i = 0; i < std::ssize(a2b2); i++)
+            c[i] -= a2b2[i];
+
+        for (int i = 0; i < std::ssize(a1b1); i++)
+            res[i] += a1b1[i];
+        for (int i = 0; i < std::ssize(c); i++)
+            res[i + k] += c[i];
+        for (int i = 0; i < std::ssize(a2b2); i++)
+            res[i + n] += a2b2[i];
+
+        return res;
+    }
+
+    template<std::integral T, std::integral U>
+    static std::vector<T> convert_base(const std::vector<U>& a, const int old_digits, const int new_digits) {
+        std::vector<u64> pow(new_digits + 1);
+        pow[0] = 1;
+        for (int i = 1; i <= new_digits; i++)
+            pow[i] = pow[i - 1] * 10;
+
+        std::vector<T> res;
+        res.reserve((std::ssize(a) * old_digits + new_digits - 1) / new_digits + 1);
+        
+        i64 cur = 0;
+        int cur_digits = 0;
+        for (int i = 0; i < std::ssize(a); i++) {
+            cur += a[i] * pow[cur_digits];
+            cur_digits += old_digits;
+            while (cur_digits >= new_digits) {
+                res.push_back((T)(cur % pow[new_digits]));
+                cur /= pow[new_digits];
+                cur_digits -= new_digits;
+            }
+        }
+        res.push_back((T)(cur));
+        while (res.empty() == false && res.back() == 0)
+            res.pop_back();
+
+        return res;
+    }
+
 };
+
+template <>
+struct std::formatter<BigInt> {
+    auto parse(std::format_parse_context& ctx) {
+        return ctx.begin();
+    }
+
+    template <class OutIt>
+    auto format(const BigInt& Int, std::basic_format_context<OutIt, char>& ctx) const {
+        std::ostringstream oss;
+        oss << Int;
+        std::string result = oss.str();
+        std::ranges::move(result.begin(), result.end(), ctx.out());
+        return ctx.out();
+    }
+};
+
+static_assert(std::formattable<BigInt, char>);

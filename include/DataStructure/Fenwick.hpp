@@ -1,39 +1,84 @@
 #include <bits/stdc++.h>
-using u32 = unsigned int;
-using i64 = long long;
-struct Fenwick
+#include <acm/TypeDef.hpp>
+
+namespace FenwickTree
 {
-    std::vector<int> nodes;
-    const int N;
-    Fenwick(const int size): nodes(size + 1, 0), N(size) {}
+    
+u32 lowbit(u32 x) {
+    return x & -x;
+}
 
-    static int lowbit(u32 x) {
-        return x & -x;
-    }
-
-    void update(int idx, int val) {
-        for (int i = idx + 1; i <= N; i += lowbit(i)) {
-            nodes[i] += val;
+template <class T>
+struct PointUpdateRangeQuery
+{
+    PointUpdateRangeQuery(const u32 size): tree(size + 1) {}
+    PointUpdateRangeQuery(const std::vector<T>& data): tree(data.size() + 1) {
+        for (int i = 0; i < std::ssize(data); i++) {
+            update(i, data[i]);
         }
     }
 
-    i64 query(int idx) const {
-        i64 res = 0;
+    void update(const int idx, const T& val) {
+        for (int i = idx + 1; i < std::ssize(tree); i += lowbit(i)) {
+            tree[i] += val;
+        }
+    }
+
+    T query(int idx) const {
+        T res{};
         for (int i = idx + 1; i > 0; i -= lowbit(i)) {
-            res += nodes[i];
+            res += tree[i];
         }
         return res;
     }
 
-    i64 find(i64 val) const {
-        i64 res = 0;
-        int pos = 0;
-        for (i64 pw = 1ll << std::bit_width(u32(N)); pw > 0; pw >>= 1) {
-            if (pos + pw <= N && res + nodes[pos + pw] <= val) {
-                pos += pw;
-                res += nodes[pos];
-            }
+    T query(int begin, int end) const {
+        return query(end - 1) - query(begin - 1);
+    }
+
+private:
+    std::vector<T> tree;
+};
+
+template <class T>
+using PURQ = PointUpdateRangeQuery<T>;
+
+template <class T>
+struct RangeUpdatePointQuery
+{
+    RangeUpdatePointQuery(const u32 size): tree(size + 1) {}
+    RangeUpdatePointQuery(const std::vector<T>& data): tree(data.size() + 1) {
+        for (int i = 0; i < std::ssize(data); i++) {
+            update(i, data[i]);
+        }
+    }
+
+    void update(const int idx, const T& val) {
+        update(idx, idx + 1, val);
+    }
+
+    void update(const int begin, const int end, const T& val) {
+        for (int i = begin + 1; i <= std::ssize(tree); i += lowbit(i)) {
+            tree[i - 1] += val;
+        }
+        for (int i = end + 1; i <= std::ssize(tree); i += lowbit(i)) {
+            tree[i - 1] -= val;
+        }
+    }
+
+    T query(const int idx) const {
+        T res{};
+        for (int i = idx + 1; i > 0; i -= lowbit(i)) {
+            res += tree[i - 1];
         }
         return res;
     }
+
+private:
+    std::vector<T> tree;
 };
+
+template <class T>
+using RUPQ = RangeUpdatePointQuery<T>;
+
+} // namespace FenwickTree

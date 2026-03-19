@@ -1,6 +1,6 @@
-#include<vector>
-
-using i64 = long long;
+#pragma once
+#include <vector>
+#include <acm/TypeDef.hpp>
 
 struct EularSieve
 {

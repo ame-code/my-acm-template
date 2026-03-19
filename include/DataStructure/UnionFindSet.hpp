@@ -1,9 +1,14 @@
 #pragma once
+
 #include<vector>
+
+// u32
+#include <acm/TypeDef.hpp>
 
 struct UnionFindSet
 {
-    std::vector<size_t> parent,rank;
+    using UnionIndexType = u32;
+
     UnionFindSet() = delete;
     explicit UnionFindSet(size_t n):parent(n, 0),rank(n, 0){
         for(size_t i = 0; i < n; i++) {
@@ -15,11 +20,11 @@ struct UnionFindSet
     UnionFindSet& operator=(const UnionFindSet&) = default;
     UnionFindSet& operator=(UnionFindSet&&) noexcept = default;
 
-    size_t root(size_t x) {
+    UnionIndexType root(UnionIndexType x) {
         return parent[x] = (parent[x] == x ? x : root(parent[x]));
     }
 
-    void merge(int x, int y) {
+    void merge(UnionIndexType x, UnionIndexType y) {
         x = root(x), y = root(y);
         if(x == y)
             return;
@@ -32,4 +37,7 @@ struct UnionFindSet
             }
         }
     }
+    
+private:
+    std::vector<UnionIndexType> parent,rank;
 };
