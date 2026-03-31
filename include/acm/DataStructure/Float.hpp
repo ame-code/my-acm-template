@@ -17,6 +17,10 @@ struct FloatWithEps
     FloatWithEps& operator=(const FloatWithEps&) = default;
     FloatWithEps& operator=(FloatWithEps&&) = default;
 
+    FloatWithEps operator-() const {
+        return {-num_};
+    }
+
     friend FloatWithEps operator+(const FloatWithEps& lhs, const FloatWithEps& rhs) {
         return lhs.num_ + rhs.num_;
     }

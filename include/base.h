@@ -3,9 +3,9 @@
 #include <bits/stdc++.h>
 #include <acm/TypeDef.hpp>
 template <class T>
-constexpr auto limit_min = std::numeric_limits<int>::min();
+constexpr auto limit_min = std::numeric_limits<T>::min();
 template <class T>
-constexpr auto limit_max = std::numeric_limits<int>::max();
+constexpr auto limit_max = std::numeric_limits<T>::max();
 std::array<char, 1 << 10 << 10 << 3> cin_buffer{};
 std::array<char, 1 << 10 << 10 << 3> cout_buffer{};
 void solve();
