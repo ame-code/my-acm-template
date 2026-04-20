@@ -12,67 +12,57 @@ struct GaussElimSolver {
 
     enum Solution {None, Infinte, Unique};
 
-    struct Result {
-        Solution sol_case;
-        std::vector<value_type> solution;
-    };
-
-    Result operator()(std::vector<std::vector<value_type>> A, std::vector<value_type> b) const {
-        auto matrix_size = A.size();
-        assert(matrix_size != 0 && b.size() == matrix_size && "Invalid matrix dimensions");
-        for (auto& row : A) {
-            assert(row.size() == matrix_size && "Invalid matrix dimensions");
+    Solution operator()(std::vector<std::vector<value_type>>& augment) const {
+        const auto matrix_size = augment.size();
+        assert(matrix_size != 0 && "Invalid matrix dimensions");
+        for (auto& row : augment) {
+            assert(row.size() == matrix_size + 1 && "Invalid matrix dimensions");
         }
 
-        int n = matrix_size;
+        const int n = matrix_size;
 
         for (int i = 0; i < n; i++) {
             int max_value_row = i;
             for (int j = 0; j < n; j++) {
-                if (j < i && A[j][j] != 0) {
+                if (j < i && augment[j][j] != 0) {
                     continue;
                 }
                 using std::abs;
-                if (abs(A[j][i]) > abs(A[max_value_row][i])) {
+                if (abs(augment[j][i]) > abs(augment[max_value_row][i])) {
                     max_value_row = j;
                 }
             }
-            std::swap(A[i], A[max_value_row]);
-            std::swap(b[i], b[max_value_row]);
+            std::swap(augment[i], augment[max_value_row]);
             max_value_row = i;
-            if (A[max_value_row][i] != 0) {
-                auto tmp = A[max_value_row][i];
-                for (int j = i; j < n; j++) {
-                    A[max_value_row][j] /= tmp;
+            if (augment[max_value_row][i] != 0) {
+                auto tmp = augment[max_value_row][i];
+                for (int j = i; j <= n; j++) {
+                    augment[max_value_row][j] /= tmp;
                 }
-                b[max_value_row] /= tmp;
 
                 for (int j = 0; j < n; j++) {
                     if (i == j) continue;
-                    auto rate = A[j][i] / A[max_value_row][i];
-                    for (int k = 0; k < n; k++) {
-                        A[j][k] -= A[max_value_row][k] * rate;
+                    auto rate = augment[j][i] / augment[max_value_row][i];
+                    for (int k = 0; k <= n; k++) {
+                        augment[j][k] -= augment[max_value_row][k] * rate;
                     }
-                    b[j] -= b[max_value_row] * rate;
                 }
             }
         }
 
-        Result result;
-        result.sol_case = Unique;
+        Solution result{Unique};
 
         for (int i = 0; i < n; i++) {
-            if (A[i][i] == 0) {
-                if (b[i] == 0) {
-                    result.sol_case = Infinte;
+            if (augment[i][i] == 0) {
+                if (augment[i][n] == 0) {
+                    result = Infinte;
                     break;
                 } else {
-                    result.sol_case = None;
+                    result = None;
                     break;
                 }
             }
         }
-        result.solution = std::move(b);
         return result;
     }
 };
