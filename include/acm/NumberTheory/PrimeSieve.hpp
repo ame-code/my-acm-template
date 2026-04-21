@@ -18,7 +18,7 @@ struct EularSieve
                 if (i64(i) * p > N) {
                     break;
                 }
-                min_factor[i * p] =  p;
+                min_factor[i * p] = p;
                 if (p == min_factor[i]) {
                     break;
                 }

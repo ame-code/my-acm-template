@@ -3,7 +3,7 @@
 #include <acm/TypeDef.hpp>
 
 template <class T>
-T fastPow(T base, u64 power) {
+T fast_pow(T base, u64 power) {
     T res = 1;
     for (; power; power >>= 1, base *= base) {
         if (power & 1) {
@@ -13,8 +13,8 @@ T fastPow(T base, u64 power) {
     return res;
 }
 
-template <u64 MOD = 998'244'353, class T>
-T fastModPow(T base, u64 power) {
+template <u64 MOD, class T>
+T fast_pow(T base, u64 power) {
     T res = 1;
     for (base %= MOD; power; power >>= 1, base = base * base % MOD) {
         if (power & 1) {
@@ -25,7 +25,7 @@ T fastModPow(T base, u64 power) {
 }
 
 template <class T>
-T fastModPow(T base, u64 power, u64 MOD) {
+T fast_pow(T base, u64 power, u64 MOD) {
     T res = 1;
     for (base %= MOD; power; power >>= 1, base = base * base % MOD) {
         if (power & 1) {

@@ -5,122 +5,115 @@
 #include <utility>
 
 template <class T = double, T Eps = 1e-7>
-struct FloatWithEps
+struct EpsFloat
 {
+private:
+    using cr = const EpsFloat&;
+    using r  = EpsFloat&;
+    using s  = EpsFloat;
+
+public:
     using value_type = T;
-    value_type num_;
+    T num;
 
-    FloatWithEps(): num_() {}
-    FloatWithEps(value_type num): num_(std::move(num)) {}
-    FloatWithEps(const FloatWithEps&) = default;
-    FloatWithEps(FloatWithEps&&) = default;
-    FloatWithEps& operator=(const FloatWithEps&) = default;
-    FloatWithEps& operator=(FloatWithEps&&) = default;
-
-    FloatWithEps operator-() const {
-        return {-num_};
-    }
-
-    friend FloatWithEps operator+(const FloatWithEps& lhs, const FloatWithEps& rhs) {
-        return lhs.num_ + rhs.num_;
-    }
-
-    friend FloatWithEps operator-(const FloatWithEps& lhs, const FloatWithEps& rhs) {
-        return lhs.num_ - rhs.num_;
-    }
-
-    friend FloatWithEps operator*(const FloatWithEps& lhs, const FloatWithEps& rhs) {
-        return lhs.num_ * rhs.num_;
-    }
-
-    friend FloatWithEps operator/(const FloatWithEps& lhs, const FloatWithEps& rhs) {
-        return lhs.num_ / rhs.num_;
-    }
+    EpsFloat(): num() {}
+    EpsFloat(T num_): num(num_) {}
+    EpsFloat(const EpsFloat&) = default;
+    EpsFloat& operator=(const EpsFloat&) = default;
 
     explicit operator bool() const {
-        using std::abs;
-        return abs(num_) <= Eps;
+        return std::abs(num) <= Eps;
     }
 
     bool operator!() const {
         return !bool(*this);
     }
 
-    friend std::partial_ordering operator<=>(const FloatWithEps& lhs, const FloatWithEps& rhs) {
-        auto diff = lhs.num_ - rhs.num_;
-        using std::abs;
-        if (abs(diff) <= Eps) {
+    EpsFloat operator-() const {
+        return {-num};
+    }
+
+    EpsFloat& operator++() {
+        num++;
+        return *this;
+    }
+    EpsFloat operator++(int) {
+        EpsFloat result = *this;
+        num++;
+        return result;
+    }
+    EpsFloat& operator--() {
+        num--;
+        return *this;
+    }
+    EpsFloat operator--(int) {
+        EpsFloat result = *this;
+        num--;
+        return result;
+    }
+
+    EpsFloat& operator+=(const EpsFloat& rhs) {
+        num += rhs.num;
+        return *this;
+    }
+    EpsFloat& operator-=(const EpsFloat& rhs) {
+        num -= rhs.num;
+        return *this;
+    }
+    EpsFloat& operator*=(const EpsFloat& rhs) {
+        num *= rhs.num;
+        return *this;
+    }
+    EpsFloat& operator/=(const EpsFloat& rhs) {
+        num /= rhs.num;
+        return *this;
+    }
+
+    friend s operator+(const EpsFloat& l, const EpsFloat& r) {return l.num + r.num;}
+    friend s operator-(const EpsFloat& l, const EpsFloat& r) {return l.num - r.num;}
+    friend s operator*(const EpsFloat& l, const EpsFloat& r) {return l.num * r.num;}
+    friend s operator/(const EpsFloat& l, const EpsFloat& r) {return l.num / r.num;}
+
+    friend std::partial_ordering operator<=>(const EpsFloat& lhs, const EpsFloat& rhs) {
+        if (std::isnan(lhs.num) || std::isnan(rhs.num)) 
+            return std::partial_ordering::unordered;
+        auto diff = lhs.num - rhs.num;
+        if (std::abs(diff) <= Eps) 
             return std::partial_ordering::equivalent;
-        }
-        return diff <=> FloatWithEps::value_type(0.0);
+        return diff <=> EpsFloat::value_type(0.0);
     }
-
-    friend bool operator==(const FloatWithEps& lhs, const FloatWithEps& rhs) {
-        using std::abs;
-        return abs(lhs.num_ - rhs.num_) <= Eps;
+    friend bool operator==(const EpsFloat& lhs, const EpsFloat& rhs) {
+        return std::abs(lhs.num - rhs.num) <= Eps;
     }
-
-    friend bool operator!=(const FloatWithEps& lhs, const FloatWithEps& rhs) {
+    friend bool operator!=(const EpsFloat& lhs, const EpsFloat& rhs) {
         return !(lhs == rhs);
     }
 
-    FloatWithEps& operator+=(const FloatWithEps& rhs) {
-        num_ += rhs.num_;
-        return *this;
+    friend auto& operator<<(std::ostream& os, const EpsFloat& num) {
+        return os << num.num;
     }
 
-    FloatWithEps& operator-=(const FloatWithEps& rhs) {
-        num_ -= rhs.num_;
-        return *this;
+    friend auto& operator>>(std::istream& is, EpsFloat& num) {
+        return is >> num.num;
     }
 
-    FloatWithEps& operator*=(const FloatWithEps& rhs) {
-        num_ *= rhs.num_;
-        return *this;
+    EpsFloat abs() const {
+        return std::abs(num);
     }
 
-    FloatWithEps& operator/=(const FloatWithEps& rhs) {
-        num_ /= rhs.num_;
-        return *this;
-    }
-
-    FloatWithEps& operator++() {
-        num_++;
-        return *this;
-    }
-
-    FloatWithEps operator++(int) {
-        FloatWithEps result = *this;
-        num_++;
-        return result;
-    }
-
-    FloatWithEps& operator--() {
-        num_--;
-        return *this;
-    }
-
-    FloatWithEps operator--(int) {
-        FloatWithEps result = *this;
-        num_--;
-        return result;
-    }
-
-    friend auto& operator<<(std::ostream& os, const FloatWithEps& num) {
-        return os << num.num_;
-    }
-
-    friend auto& operator>>(std::istream& is, FloatWithEps& num) {
-        return is >> num.num_;
-    }
-
-    FloatWithEps abs() const {
-        return std::abs(num_);
-    }
-
-    friend auto abs(const FloatWithEps& num) {
+    friend auto abs(const EpsFloat& num) {
         return num.abs();
     }
 };
 
-using Float = FloatWithEps<double, 1e-7>;
+template <class T, T Eps>
+struct std::formatter<EpsFloat<T, Eps>> : std::formatter<T> {
+    using std::formatter<T>::parse;
+
+    template <class Out>
+    auto format(const EpsFloat<T, Eps>& f, std::basic_format_context<Out, char>& ctx) const {
+        return std::formatter<T>::format(f.num, ctx);
+    }
+};
+
+using Float = EpsFloat<double, 1e-7>;
