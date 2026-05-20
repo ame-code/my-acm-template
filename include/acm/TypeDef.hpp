@@ -1,6 +1,7 @@
 #pragma once
 
-#include <acm/int128.hpp>
+#include "int128.hpp"
+#include <cstdint>
 
 using i8  = std::int8_t;
 using u8  = std::uint8_t;
