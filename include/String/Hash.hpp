@@ -1,5 +1,6 @@
 #pragma once
 #include <bits/stdc++.h>
+#include <string_view>
 
 #include "../TypeDef.hpp"
 #include "../DataStructure/ModInt.hpp"
@@ -33,6 +34,12 @@ struct Hash : PowerBase<Base, ModInt<Mod>>
         }
     }
 
+	Hash(std::string_view sv)    : PowerBase<Base, ModInt<Mod>>(sv.size()), hash(1 + sv.size()) {
+		for (int i = 1; i <= std::ssize(sv); i++) {
+			hash[i] = hash[i - 1] * Base + sv[i - 1];
+		}
+	}
+
     Hash(const Hash&) = default;
     Hash(Hash&&) noexcept = default;
 
@@ -52,6 +59,7 @@ struct DoubleHash
 
     template <class T, std::size_t Extent>
     DoubleHash(std::span<T, Extent> s) : hash_1(s), hash_2(s) {}
+	DoubleHash(std::string_view sv): hash_1(sv), hash_2(sv) {}
     std::pair<i64, i64> get(int l, int r) {
         return {hash_1.get(l, r), hash_2.get(l, r)};
     }
