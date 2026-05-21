@@ -1,6 +1,6 @@
 #pragma once
 
-#include <acm/TypeDef.hpp>
+#include "../TypeDef.hpp"
 
 template <class T>
 T fast_pow(T base, u64 power) {

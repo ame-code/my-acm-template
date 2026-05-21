@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-#include "BitTraverser.hpp"
+#include "../DataStructure/BitTraverser.hpp"
 namespace Trie {
 
 template< typename Node >

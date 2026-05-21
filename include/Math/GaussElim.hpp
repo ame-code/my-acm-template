@@ -4,7 +4,7 @@
 #include <cmath>
 #include <utility>
 
-#include <acm/DataStructure/Float.hpp>
+#include "../DataStructure/Float.hpp"
 
 template <class T = Float>
 struct GaussElimSolver {

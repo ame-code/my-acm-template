@@ -1,8 +1,8 @@
 #pragma once
 #include <bits/stdc++.h>
 
-#include <acm/TypeDef.hpp>
-#include <acm/DataStructure/ModInt.hpp>
+#include "../TypeDef.hpp"
+#include "../DataStructure/ModInt.hpp"
 
 template <i64 Base, class T = i64>
 struct PowerBase

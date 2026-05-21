@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#include <acm/TypeDef.hpp>
+#include "../TypeDef.hpp"
 
 namespace FenwickTree
 {

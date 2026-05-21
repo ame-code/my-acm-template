@@ -2,13 +2,13 @@
 #include <bits/stdc++.h>
 
 // i64
-#include <acm/TypeDef.hpp>
+#include "../TypeDef.hpp"
 
 // fastModPow
-#include <acm/Math/FastPow.hpp>
+#include "../Math/FastPow.hpp"
 
 // to_unsigned
-#include <acm/type_traits.hpp>
+#include "../type_traits.hpp"
 
 template <u64 MOD = 998'244'353, class T = i64>
 struct ModInt

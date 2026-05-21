@@ -3,10 +3,10 @@
 #include <vector>
 
 // i64
-#include <acm/TypeDef.hpp>
+#include "../TypeDef.hpp"
 
 // fast_pow
-#include <acm/Math/FastPow.hpp>
+#include "../Math/FastPow.hpp"
 
 template <u64 MOD>
 i64 inv(i64 x) {

@@ -3,8 +3,9 @@
 #include <cmath>
 #include <iostream>
 #include <utility>
+#include <concepts>
 
-template <class T = double, T Eps = 1e-7>
+template <std::floating_point T = double, T Eps = 1e-7>
 struct EpsFloat
 {
 private:

@@ -3,7 +3,7 @@
 #include<vector>
 
 // u32
-#include <acm/TypeDef.hpp>
+#include "../TypeDef.hpp"
 
 struct UnionFindSet
 {

@@ -5,7 +5,7 @@
 #include <iomanip>
 #include <concepts>
 // i64 u32
-#include <acm/TypeDef.hpp>
+#include "../TypeDef.hpp"
 
 template <class QuotType, class RemType>
 struct DivModResult
